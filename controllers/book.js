@@ -13,21 +13,15 @@ exports.getBooks = (req, res, next) => {
   }
 
   exports.getBestRating = (req, res, next) => {
-    let bestBooksRating = []
-    let allRating = []
     Book.find()
       .then((books) => {
-        res.status(200).json(books)
-        books.forEach(book => {
-          allRating.push(book.averageRating)
-        })
-        bestBooksRating = allRating.slice().sort((a, b) => b - a)
-        return bestBooksRating = bestBooksRating.slice(0,3)
+          const bestBooksRating = books.sort((a, b) => b.averageRating - a.averageRating).slice(0, 3)
+          res.status(200).json(bestBooksRating)
       })
       .catch((error) => {res.status(400).json({error: error})})
   }
 
-  exports.saveNewBook = (res, req, next) => {
+  exports.saveNewBook = (req, res, next) => {
     const bookObject = JSON.parse(req.body.book)
     delete bookObject._id
     delete bookObject._userId
@@ -36,7 +30,7 @@ exports.getBooks = (req, res, next) => {
         userId: req.auth.userId,
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     })
-    thing.save()
+    book.save()
     .then(() => { res.status(201).json({message: 'Livre enregistré !'})})
     .catch(error => { res.status(400).json( { error })})
   }

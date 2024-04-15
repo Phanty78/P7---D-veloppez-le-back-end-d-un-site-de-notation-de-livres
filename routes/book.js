@@ -7,10 +7,9 @@ const userCtrl = require('../controllers/user')
 const auth = require('../middleware/auth')
 const multer = require('../middleware/multer-config')
 
-
+router.get('/bestrating', bookCtrl.getBestRating)
 router.get('/', bookCtrl.getBooks)
 router.get('/:id', bookCtrl.getBook)
-router.get('/bestrating', bookCtrl.getBestRating)
 router.post('/', auth, multer, bookCtrl.saveNewBook)
 /*
 router.put('/:id', auth, multer, bookCtrl.updateBook)
