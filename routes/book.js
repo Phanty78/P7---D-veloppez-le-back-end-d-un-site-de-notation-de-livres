@@ -8,8 +8,8 @@ const auth = require('../middleware/auth')
 
 router.get('/', bookCtrl.getBooks)
 router.get('/:id', bookCtrl.getBook)
-/*
 router.get('/bestrating', bookCtrl.getBestRating)
+/*
 router.post('/', auth, multer, bookCtrl.saveNewBook)
 router.put('/:id', auth, multer, bookCtrl.updateBook)
 router.delete('/:id', auth, bookCtrl.deleteBook)
