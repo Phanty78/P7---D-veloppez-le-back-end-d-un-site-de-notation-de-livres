@@ -73,3 +73,26 @@ exports.getBooks = (req, res, next) => {
       })
       .catch(error => res.status(500).json({ error }))
   }
+
+  exports.ratingBook = (req, res, next) => {
+    Book.findOne({ _id: req.params.id })
+      .then(book => {
+        let activeRating = false
+        book.ratings.forEach(rating => {
+          if (rating.userId === req.auth.userId) {
+            activeRating = true
+          }})
+          if (activeRating) {
+            res.status(401).json({ message: 'Vous avez déja noté ce livre, modification de la note interdite.'})
+          }else{
+            const newRating = {
+              userId: req.auth.userId,
+              grade: req.body.grade
+            }
+            Book.updateOne({ _id: req.params.id}, { $push: { rating: newRating }})
+              .then(() => res.status(200).json({ message : 'Note ajouté !' }))
+              .catch(error => res.status(401).json({ error }))
+          }
+      })
+      .catch(error => res.status(500).json({ error }))
+  }
