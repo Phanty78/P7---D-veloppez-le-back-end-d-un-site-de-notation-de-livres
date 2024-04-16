@@ -75,6 +75,10 @@ exports.getBooks = (req, res, next) => {
   }
 
   exports.ratingBook = (req, res, next) => {
+
+    delete req.body._id
+    console.log(req.body)
+
     Book.findOne({ _id: req.params.id })
       .then(book => {
         let activeRating = false
@@ -87,9 +91,10 @@ exports.getBooks = (req, res, next) => {
           }else{
             const newRating = {
               userId: req.auth.userId,
-              grade: req.body.grade
+              grade: req.body.rating
             }
-            Book.updateOne({ _id: req.params.id}, { $push: { rating: newRating }})
+            delete newRating._id
+            Book.updateOne({ _id: req.params.id}, { $push: { ratings: newRating }})
               .then(() => res.status(200).json({ message : 'Note ajouté !' }))
               .catch(error => res.status(401).json({ error }))
           }
