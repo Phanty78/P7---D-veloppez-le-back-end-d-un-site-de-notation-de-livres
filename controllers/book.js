@@ -76,28 +76,31 @@ exports.getBooks = (req, res, next) => {
 
   exports.ratingBook = (req, res, next) => {
 
-    delete req.body._id
-    console.log(req.body)
-
     Book.findOne({ _id: req.params.id })
       .then(book => {
-        let activeRating = false
-        book.ratings.forEach(rating => {
-          if (rating.userId === req.auth.userId) {
-            activeRating = true
-          }})
-          if (activeRating) {
-            res.status(401).json({ message: 'Vous avez déja noté ce livre, modification de la note interdite.'})
-          }else{
-            const newRating = {
-              userId: req.auth.userId,
-              grade: req.body.rating
-            }
-            delete newRating._id
-            Book.updateOne({ _id: req.params.id}, { $push: { ratings: newRating }})
-              .then(() => res.status(200).json({ message : 'Note ajouté !' }))
-              .catch(error => res.status(401).json({ error }))
-          }
+        if (!book) {
+          return res.status(404).json({ message: 'Livre non trouvé.' })
+        }
+
+        const existingRating = book.ratings.find(rating => rating.userId === req.auth.userId)
+        if (existingRating) {
+          return res.status(403).json({ message: 'Vous avez déjà noté ce livre, modification de la note interdite.' })
+        }
+
+        const newRating = {
+          userId: req.auth.userId,
+          grade: req.body.rating
+        };
+
+        book.ratings.push(newRating)
+        let averageRating = book.ratings.reduce((acc, curr) => acc + curr.grade, 0) / book.ratings.length
+
+        Book.updateOne(
+          { _id: req.params.id }, 
+          { $push: { ratings: newRating }, $set: { averageRating: averageRating } }
+        )
+        .then(() => res.status(200).json({ message: 'Note ajoutée et moyenne mise à jour !' }))
+        .catch(error => res.status(500).json({ error }));
       })
-      .catch(error => res.status(500).json({ error }))
-  }
+      .catch(error => res.status(500).json({ error }));
+};
