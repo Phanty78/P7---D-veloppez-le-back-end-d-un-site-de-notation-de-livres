@@ -6,7 +6,9 @@ module.exports = (req, res, next) => {
         const timestamp = Date.now()
         name = `images/${req.file.originalname.split(".")[0].match(/[a-zA-Z0-9]/g).join("")}-${timestamp}.webp`
         sharp(req.file.buffer)
-            .resize(206,260)
+            .resize(206,260, {
+                fit: 'contain'
+            })
             .webp({quality: 100})
             .toFile(name, (error) => {
                 if (error) {
