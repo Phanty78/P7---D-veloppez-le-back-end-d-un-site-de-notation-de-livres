@@ -93,7 +93,7 @@ exports.getBooks = (req, res, next) => {
         };
 
         book.ratings.push(newRating)
-        let averageRating = book.ratings.reduce((acc, curr) => acc + curr.grade, 0) / book.ratings.length
+        let averageRating = Math.round(book.ratings.reduce((acc, curr) => acc + curr.grade, 0) / book.ratings.length)
 
         Book.updateOne(
           { _id: req.params.id }, 
