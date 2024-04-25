@@ -92,15 +92,19 @@ exports.getBooks = (req, res, next) => {
           grade: req.body.rating
         };
 
-        book.ratings.push(newRating)
-        let averageRating = Math.round(book.ratings.reduce((acc, curr) => acc + curr.grade, 0) / book.ratings.length)
+        const updatedRatings = [...book.ratings, newRating]
+        const averageRating = Math.round(updatedRatings.reduce((acc, curr) => acc + curr.grade, 0) / updatedRatings.length)
 
-        Book.updateOne(
+        Book.findOneAndUpdate(
           { _id: req.params.id }, 
-          { $push: { ratings: newRating }, $set: { averageRating: averageRating } }
+          { $push: { ratings: newRating }, $set: { averageRating: averageRating } }, 
+          {
+            new: true
+          }
         )
-        .then(() => res.status(200).json({ message: 'Note ajoutée et moyenne mise à jour !' }))
-        .catch(error => res.status(500).json({ error }));
+          .then((book) => res.status(200).json(book))
+          .catch(error => res.status(500).json({ error }))
       })
-      .catch(error => res.status(500).json({ error }));
-};
+      .catch(error => res.status(500).json({ error }))
+}
+
